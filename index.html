@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagos de la tienda</title>
+<meta name="theme-color" content="#7B3F61">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconos/icono-192.png">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+<header>
+  <h1>Pagos de la tienda</h1>
+  <button id="btnInstalar" class="instalar oculto">Instalar en esta compu</button>
+</header>
+
+<main>
+  <div id="sinSoporte" class="card oculto">
+    <h2>Esta app necesita Google Chrome o Microsoft Edge</h2>
+    <p>Ábrela desde Chrome o Edge para poder guardar los pagos en el Excel.</p>
+  </div>
+
+  <!-- configuración (una sola vez por computadora) -->
+  <div id="pantallaConfig" class="card oculto">
+    <h2>Configurar la app</h2>
+    <p class="ayuda">Esto se hace una sola vez en esta computadora.</p>
+
+    <h3>1. Clave para leer las fotos</h3>
+    <label>Clave de Gemini<input id="clave" type="password" autocomplete="off" placeholder="Pega aquí la clave"></label>
+    <p class="ayuda">Se saca gratis en aistudio.google.com/apikey con una cuenta de Google.</p>
+
+    <h3>2. Carpeta de la tienda</h3>
+    <p class="ayuda">Ahí se guardan el Excel y las fotos de los comprobantes. Por ejemplo, una carpeta "Tienda" en Documentos.</p>
+    <button class="secundario" id="btnCarpeta">Elegir carpeta</button>
+    <span id="nombreCarpeta" class="elegida"></span>
+
+    <div class="botones">
+      <button class="principal" id="btnListo">Empezar</button>
+    </div>
+    <div id="avisoConfig"></div>
+  </div>
+
+  <!-- permiso de la carpeta al abrir la app -->
+  <div id="pantallaPermiso" class="card oculto centrado">
+    <h2>Bienvenida</h2>
+    <p>Para empezar, dale permiso a la app para usar la carpeta <b id="carpetaPermiso"></b>.</p>
+    <button class="principal" id="btnPermiso">Empezar</button>
+    <p class="ayuda">Si la computadora pregunta, elige <b>Permitir siempre</b>.</p>
+  </div>
+
+  <div id="pantallaApp" class="oculto">
+    <div class="card" id="zonaSubir">
+      <h2>Agregar un pago</h2>
+      <label class="subir" id="soltar">
+        <span class="boton-grande">Elegir foto del comprobante</span>
+        <span class="ayuda">También puedes arrastrar la foto hasta aquí, o copiarla y pegarla con Ctrl + V.</span>
+        <input type="file" id="archivo" accept="image/*" multiple>
+      </label>
+      <p class="sin-foto"><button class="enlace" id="btnManual">Agregar un pago sin foto</button></p>
+      <div id="estadoSubida"></div>
+    </div>
+
+    <div class="card oculto" id="zonaRevisar">
+      <h2 id="tituloRevisar">Revisa el pago</h2>
+      <div class="revisar">
+        <div class="col-foto" id="colFoto"><img id="foto" class="foto" alt="Foto del comprobante" title="Clic para ver en grande"></div>
+        <div>
+          <div id="avisos"></div>
+
+          <h3>Datos del comprobante</h3>
+          <p class="ayuda" id="ayudaComprobante">Se llenaron solos con la foto. Si algo está mal, corrígelo.</p>
+          <div class="campos">
+            <label>Fecha<input type="date" id="fecha"></label>
+            <label>Hora<input type="time" id="hora"></label>
+            <label class="ancho">Nombre de quien pagó<input id="nombre_pagador"></label>
+            <label>Monto<input type="number" step="0.01" min="0" id="monto"></label>
+            <label>Moneda
+              <select id="moneda"><option value="CRC">Colones (₡)</option><option value="USD">Dólares ($)</option></select>
+            </label>
+            <label>Forma de pago<select id="medio_pago"></select></label>
+            <label>Banco<input id="banco" list="listaBancos"></label>
+            <label>Número de comprobante<input id="numero_comprobante"></label>
+            <label>Teléfono o cuenta de quien pagó<input id="telefono_o_cuenta"></label>
+          </div>
+
+          <h3>Datos del pedido</h3>
+          <p class="ayuda">Esto lo llenas tú.</p>
+          <div class="campos">
+            <label class="ancho">¿Qué compró?<input id="prendas" placeholder="Por ejemplo: blusa de lino blanca"></label>
+            <label>Talla<input id="talla" list="listaTallas"></label>
+            <label>Cantidad<input type="number" min="1" id="cantidad" value="1"></label>
+            <label>Estado del pedido<select id="estado"></select></label>
+            <label>Nombre de la clienta<input id="clienta" placeholder="Solo si no es la misma que pagó"></label>
+            <label class="ancho">Notas<textarea id="notas" rows="2"></textarea></label>
+          </div>
+
+          <div class="botones">
+            <button class="principal" id="btnGuardar">Guardar pago</button>
+            <button class="secundario" id="btnDescartar">No guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Últimos pagos</h2>
+      <div id="lista"><p class="vacio">Cargando...</p></div>
+      <p class="ayuda" id="dondeExcel"></p>
+    </div>
+
+    <footer>
+      <button class="enlace" id="btnConfig">Configuración</button>
+    </footer>
+  </div>
+</main>
+
+<datalist id="listaTallas"></datalist>
+<datalist id="listaBancos"></datalist>
+
+<script src="vendor/exceljs.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

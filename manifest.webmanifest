@@ -1,0 +1,16 @@
+{
+  "name": "Pagos de la tienda",
+  "short_name": "Pagos tienda",
+  "description": "Registra los pagos de la tienda desde la foto del comprobante.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f3f5",
+  "theme_color": "#7B3F61",
+  "icons": [
+    { "src": "iconos/icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "iconos/icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
