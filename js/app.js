@@ -94,6 +94,11 @@ $("btnListo").onclick = async () => {
   $("clave").value = clave;
   localStorage.setItem(CLAVE, clave);
   if (!(await Carpeta.tienePermiso(carpeta)) && !(await Carpeta.pedirPermiso(carpeta))) return;
+  try {
+    await registros();
+  } catch (e) {
+    return avisar(e.message);
+  }
   await abrirApp();
 };
 

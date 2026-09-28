@@ -92,10 +92,18 @@ export const normalizar = s => String(s ?? "").replace(/\s+/g, "").toUpperCase()
 
 export async function leerRegistros(buffer) {
   if (!buffer) return [];
+  const ajeno = new Error('En esta carpeta ya hay un archivo "Pagos tienda.xlsx" que no es de esta app. ' +
+    "Elige otra carpeta, o cámbiale el nombre a ese archivo.");
   const wb = new globalThis.ExcelJS.Workbook();
-  await wb.xlsx.load(buffer);
+  try {
+    // la tabla se reconstruye al guardar; leerla hace fallar ExcelJS con archivos hechos en otros programas
+    await wb.xlsx.load(buffer, { ignoreNodes: ["tableParts"] });
+  } catch (e) {
+    console.warn("leerRegistros", e);
+    throw ajeno;
+  }
   const ws = wb.getWorksheet("Pagos");
-  if (!ws) throw new Error("El archivo no tiene la hoja Pagos");
+  if (!ws) throw ajeno;
 
   // ubica las columnas por el nombre del encabezado, por si alguien las movió
   const pos = {};
@@ -103,7 +111,7 @@ export async function leerRegistros(buffer) {
     const col = COLUMNAS.find(([, titulo]) => titulo === valorPlano(cell.value));
     if (col) pos[col[0]] = n;
   });
-  if (!pos.fecha) throw new Error("No se encontraron los encabezados de la hoja Pagos");
+  if (!pos.fecha) throw ajeno;
 
   const registros = [];
   for (let r = FIRST; r <= ws.rowCount; r++) {
