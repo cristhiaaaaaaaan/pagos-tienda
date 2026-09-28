@@ -1,4 +1,4 @@
-const CACHE = "pagos-tienda-v1";
+const CACHE = "pagos-tienda-v2";
 const ARCHIVOS = ["./", "index.html", "estilos.css", "manifest.webmanifest", "js/app.js", "js/excel.js",
   "js/gemini.js", "js/carpeta.js", "vendor/exceljs.min.js", "iconos/icono-192.png", "iconos/icono-512.png"];
 

@@ -1,6 +1,6 @@
 import * as Excel from "./excel.js";
 import * as Carpeta from "./carpeta.js";
-import { leerComprobante, prepararImagen, ErrorLectura } from "./gemini.js";
+import { leerComprobante, prepararImagen, ErrorLectura, limpiarClave, verificarClave } from "./gemini.js";
 
 const $ = id => document.getElementById(id);
 const CAMPOS = ["fecha", "hora", "nombre_pagador", "monto", "moneda", "medio_pago", "banco",
@@ -79,9 +79,19 @@ $("btnCarpeta").onclick = async () => {
 };
 
 $("btnListo").onclick = async () => {
-  const clave = $("clave").value.trim();
-  const falta = !clave ? "Falta pegar la clave." : !carpeta ? "Falta elegir la carpeta." : "";
-  if (falta) { $("avisoConfig").innerHTML = `<div class="aviso rojo" style="margin-top:14px">${falta}</div>`; return; }
+  const avisar = (txt, clase = "rojo") =>
+    { $("avisoConfig").innerHTML = `<div class="aviso ${clase}" style="margin-top:14px">${esc(txt)}</div>`; };
+  const clave = limpiarClave($("clave").value);
+  if (!clave) return avisar("Falta pegar la clave.");
+  if (!carpeta) return avisar("Falta elegir la carpeta.");
+
+  $("btnListo").disabled = true;
+  avisar("Revisando la clave...", "info");
+  const problema = await verificarClave(clave);
+  $("btnListo").disabled = false;
+  if (problema) return avisar(problema);
+
+  $("clave").value = clave;
   localStorage.setItem(CLAVE, clave);
   if (!(await Carpeta.tienePermiso(carpeta)) && !(await Carpeta.pedirPermiso(carpeta))) return;
   await abrirApp();
@@ -155,7 +165,7 @@ async function siguiente() {
     mostrar(datos, repetido);
   } catch (e) {
     if (e instanceof ErrorLectura && e.tipo === "config") {
-      avisoSubida("La clave para leer las fotos no funciona. Pídele ayuda a quien instaló la app.", "rojo");
+      avisoSubida(`La clave para leer las fotos no funciona. Pídele ayuda a quien instaló la app.<br><small>(${esc(e.message)})</small>`, "rojo");
     } else if (e instanceof ErrorLectura && e.tipo === "agotado") {
       cola = [];
       avisoSubida(esc(e.message), "amarillo");

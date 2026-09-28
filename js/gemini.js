@@ -67,6 +67,23 @@ function marcarAgotado(modelo) {
   try { localStorage.setItem(CLAVE_AGOTADOS, JSON.stringify({ dia: hoyGoogle(), modelos: [...s] })); } catch {}
 }
 
+// acepta la clave aunque venga con "GEMINI_API_KEY=", comillas o espacios
+export const limpiarClave = txt => String(txt || "").replace(/^[^=]*=/, "").replace(/["'\s]/g, "");
+
+// listar modelos sirve para validar la clave sin gastar lecturas
+export async function verificarClave(clave) {
+  let r;
+  try {
+    r = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",
+      { headers: { "x-goog-api-key": clave } });
+  } catch {
+    return "No hay conexión a internet para revisar la clave.";
+  }
+  if (r.ok) return "";
+  const j = await r.json().catch(() => ({}));
+  return `Esa clave no funciona. Google respondió: ${j.error?.message || "error " + r.status}`;
+}
+
 export async function prepararImagen(file) {
   let bitmap;
   try {
@@ -138,9 +155,9 @@ export async function leerComprobante(base64, clave) {
     }
     if (r.status === 404) { marcarAgotado(modelo); continue; }
     if (r.status >= 500) { ocupados++; continue; }
-    if (r.status === 400 && /api key/i.test(detalle)) throw new ErrorLectura("La clave de lectura no es válida.", "config");
-    if (r.status === 401 || r.status === 403) throw new ErrorLectura("La clave de lectura no es válida.", "config");
     console.warn("Gemini", modelo, r.status, detalle);
+    if ((r.status === 400 && /api key/i.test(detalle)) || r.status === 401 || r.status === 403)
+      throw new ErrorLectura(err.error?.message || `error ${r.status}`, "config");
   }
 
   if (ocupados) throw new ErrorLectura("El servicio que lee las fotos está saturado en este momento. Espera un minuto y vuelve a intentar.");
